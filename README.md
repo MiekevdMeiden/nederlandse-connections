@@ -1,4 +1,5 @@
-# Customized-Connections-NYT
-HTML to make your own Connections puzzle, as close as I could make it to the original by the NYT.
+# Nederlandse connections
+HTML/CSS/JS om zelf Connections te maken en te hosten.  
+Ik bedenk soms goede categorieën en wilde ook een hele puzzels maken, maar waar is de fun als je ze niet zelf ook kunt spelen???
 
-All rights do the NYT team for an amazing game and aesthetic. Code is not exacly the original.
+Het enige 'Nederlandse' is dat de tekst en de voorbeeldpuzzel in het Nederlands zijn. Voor de rest is het gewoon Connections zoals bedacht door de New York Times. 
