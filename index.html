@@ -1,9 +1,10 @@
 <!DOCTYPE html>
+<!-- Original code from  margaridappereira at https://github.com/margaridappereira/Customized-Connections-NYT (cloned on 2026-10-10). Since changed by me (Mieke van der Meiden).-->
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connections</title>
+    <title>Connecties</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <style>
         body {
@@ -118,30 +119,34 @@
 </head>
 <body>
 
-    <p>Create four groups of four!</p>
+    <h1>Connecties</h1>
+    <p>van de New York Times, maar dan in het Nederlands</p>
+    <p>Vind vier groepen van vier!</p>
 
     <div class="grid" id="game-grid"></div>
 
-    <p> Mistakes Remaining: &infin;</p>
+    <!-- TODO: mistake counter -->
+    <div id="mistake-cntr">Resterende fouten: &#x2b24 &#x2b24 &#x2b24 &#x2b24</div>
 
     <div class="btn-container">
         <button id="submit-btn" class="btn" onclick="checkSelection()">Submit</button>
     </div>
     <div id="message"></div>
-    
 
+    <p>100% geïnspireerd door Connections van de NYT. Alle credits voor het concept en het kleurenshema gaan naar hen. Speel de originele versie <a href="https://www.nytimes.com/games/connections">hier</a>.<br>
+        Code is <a>hier</a> te vinden en is een fork van <a href="https://github.com/margaridappereira/Customized-Connections-NYT">dit repository</a>.
+    </p>
+
+    <script src="puzzels.js"></script>
     <script>
-        const categories = [
-            { desc: "About Andy", color: "#fae16f", words: ["Bonito", "Atento", "Inteligente", "Engraçado"] },
-            { desc: "Words Margarida uses A LOT", color: "#b9d188", words: ["Imagina", "Pronto", "Diga", "Fofo"] },
-            { desc: "Things we enjoy doing together!", color: "#b0c2ed", words: ["Sestas", "Cozinhar", "Parallel Play", "Caminhadas"] },
-            { desc: "First words of song titles in Portuguese that we love", color: "#cfabd7", words: ["Volta", "Força", "Perdido", "Cordeiro"] }
-        ];
+        const categories = puzzles[1].categories;
+        const delay = ms => new Promise(res => setTimeout(res, ms));
 
         let selectedCards = [];
         let solvedCategories = [];
         let lastSolvedCategory = null;
         let allWords = [];
+        let mistakesleft = 4;
 
         // Inicializar o jogo
         function initGame() {
@@ -152,8 +157,23 @@
                 });
             });
            
-            allWords.sort(() => Math.random() - 0.5);
+            // allWords.sort(() => Math.random() - 0.5);
+            allWords = shuffle(allWords);
             renderGrid();
+            const btn = document.getElementById("submit-btn");
+            btn.disabled =true;
+        }
+
+        //Fisher-Yates shuffle that is less biased
+        function shuffle(array) {
+            var m = array.length, t, i;
+            while (m) {
+                i = Math.floor(Math.random() * m--);
+                t = array[m];
+                array[m] = array[i];
+                array[i] = t;
+            }
+            return(array);
         }
 
         function renderGrid() {
@@ -165,7 +185,7 @@
                 const cat = categories[catIndex];
                 const div = document.createElement("div");
                 div.className = "solved";
-                div.style.backgroundColor = cat.color;
+                div.style.backgroundColor = gradecolordict[cat.grade];
 
                 if (catIndex === lastSolvedCategory) {
                     div.classList.add("pop-solved");
@@ -256,9 +276,10 @@
         function checkSelection() {
             const msg = document.getElementById("message");
             const grid = document.getElementById("game-grid");
+            const mstks = document.getElementById("mistake-cntr");
 
             if (selectedCards.length !== 4) {
-                msg.innerText = "Seleciona exatamente 4 palavras!";
+                msg.innerText = "Please select four cards";
                 return;
             }
 
@@ -266,20 +287,21 @@
             const isCorrect = selectedCards.every(item => item.catIndex === firstCat);
 
             if (isCorrect) {
-                msg.innerText = "Correct!";
+                msg.innerText = "Helmaal goed :D";
                 solvedCategories.push(firstCat);
-            
                 lastSolvedCategory = firstCat;
                 //solvedCategories.push(firstCat);
 
                 allWords = allWords.filter(item => item.catIndex !== firstCat);
             } else {
-                msg.innerText = "NO! Try again :)";
+                msg.innerText = "Incorrect :(";
                 lastSolvedCategory = null;
                 grid.classList.remove("shake");
                 void grid.offsetWidth;
                 grid.classList.add("shake");
 
+                mistakesleft -= 1;
+                mstks.innerText = "Resterende fouten:".concat(" \u2B24".repeat(mistakesleft));
                 setTimeout(() => {
                     grid.classList.remove("shake");
                     selectedCards = [];
@@ -289,14 +311,35 @@
 
             selectedCards = [];
             renderGrid();
-
-            if (solvedCategories.length === 4) {
-                msg.innerText = "Congratulations!";
-                msg.style.fontSize = "90px";
+            
+            if (mistakesleft <= 0){
+                    msg.innerText = "Helaas! Volgende keer beter."
+                    //reveal all answers
+                    revealanswers(); 
+                    const btn = document.getElementById("submit-btn");
+                    btn.disabled=true;
+            }
+            else if (solvedCategories.length === 4) {
+                msg.innerText = "hoera!";
+                msg.style.fontSize = "50px";
 
                 triggerVictoryConfetti();
                 const btn = document.getElementById("submit-btn");
                 btn.disabled =true;
+            }
+        }
+        const revealanswers = async () =>{
+            let i=0;
+            await delay(800);
+            while (i<4){
+                if(!solvedCategories.includes(i)){
+                    solvedCategories.push(i);
+                    allWords = allWords.filter(item => item.catIndex !== i);
+                    lastSolvedCategory = i;
+                    renderGrid();
+                    await delay(800);
+                }
+                i++;
             }
         }
 
