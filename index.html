@@ -12,17 +12,18 @@
             text-align: center;
             background-color: #f8f9fa;
             margin: 0;
-            padding: 20px;
+            padding: clamp(5px, 3vw, 20px);
         }
         h1 { color: #1a1a1a; }
         .grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            min-width: 700px;
+            grid-template-columns: repeat(4, minmax(0,1fr));
+            gap: clamp(5px, 1.5vw, 10px);
+            /* min-width: 700px; */
             max-width: 750px;
-            width: max-content;
+            /* width: max-content; */
             margin: 20px auto;
+            container-type: inline-size;
         }
 
         .grid.shake {
@@ -39,19 +40,27 @@
         .card {
             background-color: #efefe6;
             border-radius: 6px;
-            padding: clamp(20px, 3vw, 40px) clamp(5px, 3vw, 20px);
+            padding: clamp(20px, 3vw, 40px) clamp(5px, 2vw, 10px);
             font-weight: bold;
-            font-size: clamp(8px, 3vw , 18px);
+            font-size: clamp(5pt, 3.3cqw , 15pt);
+            /* min-width:0; */
             cursor: pointer;
             user-select: none;
             text-transform: uppercase;
             transition: transform 0.15s ease, background-color 0.2s ease, color 0.2s ease;
             max-height: 20px;
+            /* max-width: 300px; */
 
             display: flex;
             align-items: center;
             justify-content: center;
-            word-break: normal;
+            /* word-break: break-all; */
+            /* overflow-y: hidden; */
+            /* white-space: nowrap; */
+            -webkit-hyphens: auto;
+            -moz-hyphens: auto;
+            -ms-hyphens: auto;
+            hyphens: auto;
             
         }
         .card.selected {
@@ -74,12 +83,17 @@
             grid-column: span 4;
             color: black;
             font-weight: bold;
-            max-height: 70px;
+            max-height: 20px;
             /* padding: 30px 20px; */
-            padding: clamp(10px, 3vw, 30px) clamp(5px, 3vw, 20px);
+            padding: clamp(20px, 3vw, 40px) clamp(5px, 2vw, 10px);
             border-radius: 6px;
             text-transform: uppercase;
-
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            
+            
         }
 
         .solved.pop-solved {
@@ -120,21 +134,38 @@
         #message { margin-top: 15px; font-weight: bold; min-height: 20px; }
     </style>
     <style>
-        #pplist{
-            display: none;
+        .infotabs {
+        overflow: hidden;
+        border: 2px solid #cfabd7;
+        border-radius: 6px;
+        min-height:300px;
+        text-align: left;
         }
+        .infotabs button{
+            border: none;
+            font-weight: bold;
+            padding: 5pt;
+            margin:0pt;
+        }
+        .infotabs button.active {
+        background-color: #cfabd7;
+        }
+
+        .tabcontent {
+        display: none;
+        padding: 6px 12px;
+        }
+
         #pplist button{
-            display: block;
+            /* background-color: #b9d188; */
+            margin:0 5px 0 0;
+            padding: 10px 5px;
+            width:100px;
+            border: none;
+            border-radius: 3px;
         }
-        .active{
-            background-color: blue;
-            color: #ffffff;
-        }
-        .pastpuzzles{
-            position:fixed;
-            top:5%;
-            right:5%;
-            z-index:1000;
+        #pplist > button.active{
+            background-color:#b0c2ed;
         }
     </style>
 </head>
@@ -143,15 +174,12 @@
         
     <h1>Connecties</h1>
     <p>van de New York Times, maar dan in het Nederlands</p>
-    <p>Vind vier groepen van vier!</p>
-    <div class="pastpuzzles">
-        <button id="ppbtn" onclick="togglepp()">past puzzles</button>
-        <div id="pplist"></div>
+    <p>Vind vier groepen van vier!</p>    
     </div>
-    </div>
-    
 
-    <div class="grid" id="game-grid"></div>
+    <div id="puzzelinfo" style="text-align: left;">
+    </div>
+    <div lang="nl" class="grid" id="game-grid"></div>
 
     <!-- TODO: mistake counter -->
     <div id="mistake-cntr">Resterende fouten: &#x2b24 &#x2b24 &#x2b24 &#x2b24</div>
@@ -161,16 +189,53 @@
     </div>
     <div id="message"></div>
 
-    <p>100% geïnspireerd door Connections van de NYT. Alle credits voor het concept en het kleurenshema gaan naar hen. Speel de originele versie <a href="https://www.nytimes.com/games/connections">hier</a>.<br>
-        Code is <a href="https://github.com/MiekevdMeiden/nederlandse-connections">hier</a> te vinden en is een fork van <a href="https://github.com/margaridappereira/Customized-Connections-NYT">dit repository</a>.
-    </p>
+    
     
 
+    <div style="width: min(800px, 95%); margin:auto;">
+        <p>100% geïnspireerd door Connections van de NYT. Alle credits voor het concept en het kleurenshema gaan naar hen. Speel de originele versie <a href="https://www.nytimes.com/games/connections">hier</a>.<br>
+        Code is <a href="https://github.com/MiekevdMeiden/nederlandse-connections">hier</a> te vinden en is een fork van <a href="https://github.com/margaridappereira/Customized-Connections-NYT">dit repository</a>.
+        </p>
+        <div class="infotabs">
+            <div>
+            <button class="tablinks" onclick="loadtab(event, 'uitleg')" id="defaultOpen">Speluitleg</button>
+            <button class="tablinks" onclick="loadtab(event, 'archief')">Puzzelarchief</button>
+            <button class="tablinks" onclick="loadtab(event, 'bio')" style="border-radius: 0 0 6px 0;">Over de maker</button>
+            </div>
+            <div id="uitleg" class="tabcontent">
+                <div>
+                    <p>Probeer vier groepen van ieder vier woorden te vinden. Selecteer vier kaarten en druk op 'submit' om je gekozen groep te controleren. Als je vier keer een incorrecte groep indient heb je verloren.
+                    De vier categoriën hebben ieder een kleur die de moeilijkheid aangeeft. Van makkelijk naar moeilijk is de volgorde: geel-groen-blauw-paars.</p>
+                    <p><b>TIP #1:</b> Probeer zo lang mogelijk te wachten met een selectie indienen. Soms lijkt een categorie heel logisch maar klopt zo de rest van het bord niet meer.
+                    Nadenken over de overige categoriën voordat je iets indient kan fouten voorkomen.</p>
+                    <p><b>TIP #2:</b> Mocht je al drie fouten hebben gemaakt maar het nog niet willen opgeven, kun je de pagina gewoon herladen en dan worden het aantal pogingen gereset. Is natuurlijk niet de bedoeling, maar mag wel :)</p>
+                </div>
+            </div>
+            <div id="archief" class="tabcontent">
+                <p>
+                <div id="pplist"></div>
+                </p>
+            </div>
+            <div id="bio" class="tabcontent">
+                <div>
+                <p>Hoi, ik ben Mieke en ik speel iedere dag wel ergens de NYT Connections. Omdat ik vond dat ik te weinig Nederlandse media consumeerde in mijn <i>day to day</i> vroeg ik me af of er ook een Nederlandse aanbieder was van dit spel.
+                De paar Nederlandse varianten die er zijn voldeden niet aan mijn verwachtingen, dus toen was de enige optie nog om ze zelf eens proberen te maken.</p>
+                <p>Puzzels maken is niet eenvoudig ben ik achter gekomen. Ik kan de moeilijkheidsgraad lastig inschatten en weet niet of ze dezelfde speelervaring geven als het origineel. 
+                Ook ik leef in een bepaalde bubbel, dus categoriën die voor mij wellicht voor de hand liggen kunnen voor een ander voelen als heel erg niche.
+                </p>
+                <p>Mocht je meer willen zien van wat ik maak en doe. Neem dan een kijkje op <a href="https://miekevandermeiden.nl/">miekevandermeiden.nl</a></p>
+                </div>
+            </div>
+        </div>
+        <p>Heb je feedback, vragen, of wil je zelf een puzzel insturen? Dat kan! Stuur dan je vraag of puzzel naar contact@miekevandermeiden.nl.</p>
+    </div>
+    
+    
     <script src="puzzels.js"></script> <!-- change to voorbeeldpuzzel.js for testing -->
     <script>
         function selectnewest(p) {
-            // const today = new Date();
-            const today = new Date("2026-11-24");
+            const today = new Date();
+            //const today = new Date("2026-11-24");
             p = p.filter(e => new Date(e.pubdate).setHours(0,0,0,0) <= today.setHours(0,0,0,0));
             p = p.sort((a, b) => b.pubdate.localeCompare(a.pubdate))
             return(p);
@@ -187,25 +252,33 @@
         }
 
         function loadpuzzle(elem){
-            console.log("function called");
             let date = elem.target.innerText;
             categories = filtered.filter(e => e.pubdate === date)[0].categories;
             initGame();
 
-            let elements = document.querySelectorAll('.active')
+            // let elements = document.querySelectorAll('.active')
+            let elements = Array.from(document.getElementById('pplist').children);
             elements.forEach(el => el.classList.remove('active'))
 
             elem.target.classList.add('active');
         }
 
-        function togglepp(){
-            var x = document.getElementById("pplist");
-            if (x.style.display === "block") {
-                x.style.display = "none";
-            } else {
-                x.style.display = "block";
+        function loadtab(evt, id) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
             }
+
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(id).style.display = "block";
+            evt.currentTarget.className += " active";
         }
+        document.getElementById("defaultOpen").click();
+        Array.from(document.getElementById('pplist').children)[0].classList.add('active');
 
     </script>
     <script>
@@ -241,12 +314,6 @@
             renderGrid();
             const btn = document.getElementById("submit-btn");
             btn.disabled =true;
-
-            // reset the width to fit longer words, but then fix the width so that the board does not shrink when the long words are removed
-            const ggrid = document.getElementById("game-grid");
-            ggrid.style.width = "max-content";
-            let gridwidth = ggrid.offsetWidth;
-            ggrid.style.width = `${gridwidth}px`;
         }
 
         //Fisher-Yates shuffle that is less biased
@@ -382,7 +449,13 @@
 
                 allWords = allWords.filter(item => item.catIndex !== firstCat);
             } else {
-                msg.innerText = "Incorrect :(";
+                if(selectedCards.filter(item => item.catIndex === firstCat).length === 3 || (selectedCards.slice(-3)).every((val, i, arr) => val.catIndex === arr[0].catIndex)){
+                    msg.innerText = "drie van de vier...";
+                }
+                else{
+                    msg.innerText = "Incorrect :(";
+                }
+                
                 lastSolvedCategory = null;
                 grid.classList.remove("shake");
                 void grid.offsetWidth;
