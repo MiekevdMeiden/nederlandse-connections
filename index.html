@@ -43,25 +43,21 @@
             padding: clamp(20px, 3vw, 40px) clamp(5px, 2vw, 10px);
             font-weight: bold;
             font-size: clamp(5pt, 3.3cqw , 15pt);
-            /* min-width:0; */
             cursor: pointer;
             user-select: none;
             text-transform: uppercase;
             transition: transform 0.15s ease, background-color 0.2s ease, color 0.2s ease;
             max-height: 20px;
-            /* max-width: 300px; */
 
             display: flex;
             align-items: center;
             justify-content: center;
-            /* word-break: break-all; */
-            /* overflow-y: hidden; */
-            /* white-space: nowrap; */
-            -webkit-hyphens: auto;
-            -moz-hyphens: auto;
-            -ms-hyphens: auto;
-            hyphens: auto;
-            
+        }
+        .cardtext{
+            display: block;
+            transform-origin: 0 0;
+            text-align: center;
+            width: 100%;   
         }
         .card.selected {
             background-color: #5a5a5a;
@@ -70,7 +66,6 @@
 
         .card.pop {
             animation: popAnimation 0.20s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    
         }
 
         @keyframes popAnimation {
@@ -84,7 +79,6 @@
             color: black;
             font-weight: bold;
             max-height: 20px;
-            /* padding: 30px 20px; */
             padding: clamp(20px, 3vw, 40px) clamp(5px, 2vw, 10px);
             border-radius: 6px;
             text-transform: uppercase;
@@ -92,8 +86,6 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            
-            
         }
 
         .solved.pop-solved {
@@ -157,8 +149,7 @@
         }
 
         #pplist button{
-            /* background-color: #b9d188; */
-            margin:0 5px 0 0;
+            margin:0 5px 5px 0;
             padding: 10px 5px;
             width:100px;
             border: none;
@@ -181,7 +172,6 @@
     </div>
     <div lang="nl" class="grid" id="game-grid"></div>
 
-    <!-- TODO: mistake counter -->
     <div id="mistake-cntr">Resterende fouten: &#x2b24 &#x2b24 &#x2b24 &#x2b24</div>
 
     <div class="btn-container">
@@ -205,9 +195,9 @@
             <div id="uitleg" class="tabcontent">
                 <div>
                     <p>Probeer vier groepen van ieder vier woorden te vinden. Selecteer vier kaarten en druk op 'submit' om je gekozen groep te controleren. Als je vier keer een incorrecte groep indient heb je verloren.
-                    De vier categoriën hebben ieder een kleur die de moeilijkheid aangeeft. Van makkelijk naar moeilijk is de volgorde: geel-groen-blauw-paars.</p>
+                    De vier categorieën hebben ieder een kleur die de moeilijkheid aangeeft. Van makkelijk naar moeilijk is de volgorde: geel-groen-blauw-paars.</p>
                     <p><b>TIP #1:</b> Probeer zo lang mogelijk te wachten met een selectie indienen. Soms lijkt een categorie heel logisch maar klopt zo de rest van het bord niet meer.
-                    Nadenken over de overige categoriën voordat je iets indient kan fouten voorkomen.</p>
+                    Nadenken over de overige categorieën voordat je iets indient kan fouten voorkomen.</p>
                     <p><b>TIP #2:</b> Mocht je al drie fouten hebben gemaakt maar het nog niet willen opgeven, kun je de pagina gewoon herladen en dan worden het aantal pogingen gereset. Is natuurlijk niet de bedoeling, maar mag wel :)</p>
                 </div>
             </div>
@@ -221,7 +211,7 @@
                 <p>Hoi, ik ben Mieke en ik speel iedere dag wel ergens de NYT Connections. Omdat ik vond dat ik te weinig Nederlandse media consumeerde in mijn <i>day to day</i> vroeg ik me af of er ook een Nederlandse aanbieder was van dit spel.
                 De paar Nederlandse varianten die er zijn voldeden niet aan mijn verwachtingen, dus toen was de enige optie nog om ze zelf eens proberen te maken.</p>
                 <p>Puzzels maken is niet eenvoudig ben ik achter gekomen. Ik kan de moeilijkheidsgraad lastig inschatten en weet niet of ze dezelfde speelervaring geven als het origineel. 
-                Ook ik leef in een bepaalde bubbel, dus categoriën die voor mij wellicht voor de hand liggen kunnen voor een ander voelen als heel erg niche.
+                Ook ik leef in een bepaalde bubbel, dus categorieën die voor mij wellicht voor de hand liggen kunnen voor een ander voelen als heel erg niche.
                 </p>
                 <p>Mocht je meer willen zien van wat ik maak en doe. Neem dan een kijkje op <a href="https://miekevandermeiden.nl/">miekevandermeiden.nl</a></p>
                 </div>
@@ -234,8 +224,8 @@
     <script src="puzzels.js"></script> <!-- change to voorbeeldpuzzel.js for testing -->
     <script>
         function selectnewest(p) {
-            const today = new Date();
-            //const today = new Date("2026-11-24");
+            // const today = new Date();
+            const today = new Date("2026-11-24");
             p = p.filter(e => new Date(e.pubdate).setHours(0,0,0,0) <= today.setHours(0,0,0,0));
             p = p.sort((a, b) => b.pubdate.localeCompare(a.pubdate))
             return(p);
@@ -256,7 +246,6 @@
             categories = filtered.filter(e => e.pubdate === date)[0].categories;
             initGame();
 
-            // let elements = document.querySelectorAll('.active')
             let elements = Array.from(document.getElementById('pplist').children);
             elements.forEach(el => el.classList.remove('active'))
 
@@ -279,7 +268,6 @@
         }
         document.getElementById("defaultOpen").click();
         Array.from(document.getElementById('pplist').children)[0].classList.add('active');
-
     </script>
     <script>
         let categories = filtered[0].categories;
@@ -362,7 +350,8 @@
             allWords.forEach(item => {
                 const div = document.createElement("div");
                 div.className = "card";
-                div.innerText = item.word;
+                // div.innerText = item.word;
+                div.innerHTML = `<span class="cardtext">${item.word}</span>`;
                 if (selectedCards.includes(item)) {
                     div.classList.add("selected");
                 }
@@ -372,6 +361,17 @@
 
             const mstks = document.getElementById("mistake-cntr");
             mstks.innerText = "Resterende fouten:".concat(" \u2B24".repeat(mistakesleft));
+            scaleText();
+        }
+
+        function scaleText(){
+            let els = document.querySelectorAll(".cardtext");
+            for (let el of els) {
+                let xScale = el.clientWidth / el.scrollWidth;
+                if (xScale < 1) { 
+                    el.style.transform = "scaleX(" + xScale + ")";
+                }
+            }
         }
 
         function toggleSelect(item, element) {
