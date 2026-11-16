@@ -209,7 +209,7 @@
             <div id="bio" class="tabcontent">
                 <div>
                 <p>Hoi, ik ben Mieke en ik speel iedere dag wel ergens de NYT Connections. Omdat ik vond dat ik te weinig Nederlandse media consumeerde in mijn <i>day to day</i> vroeg ik me af of er ook een Nederlandse aanbieder was van dit spel.
-                De paar Nederlandse varianten die er zijn voldeden niet aan mijn verwachtingen, dus toen was de enige optie nog om ze zelf eens proberen te maken.</p>
+                Ik kon niets vinden, dus toen was de enige optie nog om ze zelf eens proberen te maken. Ondertussen weet ik dat de NRC een best wel goede connecties-variant heeft, maar daar is het nu te laat voor. Nu heb ik deze al gemaakt >:|</p>
                 <p>Puzzels maken is niet eenvoudig ben ik achter gekomen. Ik kan de moeilijkheidsgraad lastig inschatten en weet niet of ze dezelfde speelervaring geven als het origineel. 
                 Ook ik leef in een bepaalde bubbel, dus categorieën die voor mij wellicht voor de hand liggen kunnen voor een ander voelen als heel erg niche.
                 </p>
@@ -224,9 +224,10 @@
     <script src="puzzels.js"></script> <!-- change to voorbeeldpuzzel.js for testing -->
     <script>
         function selectnewest(p) {
-            // const today = new Date();
-            const today = new Date("2026-11-24");
+            const today = new Date();
+            // const today = new Date("2026-11-24");
             p = p.filter(e => new Date(e.pubdate).setHours(0,0,0,0) <= today.setHours(0,0,0,0));
+            console.log(typeof p[0]?.pubdate, p[0]?.pubdate);
             p = p.sort((a, b) => b.pubdate.localeCompare(a.pubdate))
             return(p);
         }
@@ -431,7 +432,6 @@
         function checkSelection() {
             const msg = document.getElementById("message");
             const grid = document.getElementById("game-grid");
-            // const mstks = document.getElementById("mistake-cntr");
 
             if (selectedCards.length !== 4) {
                 msg.innerText = "Please select four cards";
@@ -462,7 +462,6 @@
                 grid.classList.add("shake");
 
                 mistakesleft -= 1;
-                // mstks.innerText = "Resterende fouten:".concat(" \u2B24".repeat(mistakesleft));
                 setTimeout(() => {
                     grid.classList.remove("shake");
                     selectedCards = [];
